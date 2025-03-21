@@ -29,6 +29,13 @@ jobs:
           -o dart-dio-client --git-user-id OpenParkProject \
           --git-repo-id OPP-common \
           --additional-properties=pubName=opp_api_client
+      
+      - name: Generate Python API client
+        run: |
+          docker-entrypoint.sh generate -i openapi.yaml -g python \
+          -o python-client --git-user-id OpenParkProject \
+          --git-repo-id OPP-common \
+          --additional-properties=pubName=opp_api_client
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -36,6 +43,7 @@ jobs:
           name: api-generated
           path: |
             dart-dio-client
+            python-client
           if-no-files-found: error
 
   push-generated:
@@ -53,12 +61,23 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions Bot"
-          mv api-generated/dart-dio-client/* ./.
-          rm -rf api-generated
-          git checkout -b dart-dio-client
+          mv dart-dio-client/* .
+          rm -rf dart-dio-client
           git add .
           git commit -m "Update generated dart-dio-client" || exit 0
           git push origin HEAD:dart-dio-client -f
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: push python-client
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions Bot"
+          mv python-client/* .
+          rm -rf python-client
+          git add .
+          git commit -m "Update generated python-client" || exit 0
+          git push origin HEAD:python-client -f
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -75,8 +94,8 @@ jobs:
         
         - name: Compress artifacts
           run: |
-            mv api-generated/dart-dio-client dart-dio-client
             tar -czf dart-dio-client.tar.gz dart-dio-client
+            tar -czf python-client.tar.gz python-client
         
         - name: Create GitHub Release
           env:
@@ -86,7 +105,8 @@ jobs:
             gh release create $VERSION \
               --title "API $VERSION" \
               --notes "Automated API release generated from OpenAPI spec" \
-              dart-dio-client.tar.gz
+              dart-dio-client.tar.gz \
+              python-client.tar.gz
 
   trigger-frontend:
     runs-on: ubuntu-latest
