@@ -24,9 +24,9 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Generate API clients
-        run: docker-entrypoint.sh generate -i openapi.yaml -g dart-dio -o dart-dio-client --git-user-id OpenParkProject --git-repo-id OPP-common
+        run: docker-entrypoint.sh generate -i openapi.yaml -g dart-dio -o dart-dio-client --git-user-id OpenParkProject --git-repo-id OPP-common/dart-dio-client
       - name: Generate API server
-        run: docker-entrypoint.sh generate -i openapi.yaml -g go-gin-server -o go-gin-server --git-user-id OpenParkProject --git-repo-id OPP-common
+        run: docker-entrypoint.sh generate -i openapi.yaml -g go-gin-server -o go-gin-server --git-user-id OpenParkProject --git-repo-id OPP-common/go-gin-server
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
