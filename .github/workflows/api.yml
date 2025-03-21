@@ -24,9 +24,22 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Generate API clients
-        run: docker-entrypoint.sh generate -i openapi.yaml -g dart-dio -o dart-dio-client
+        run: docker-entrypoint.sh generate -i openapi.yaml -g dart-dio -o dart-dio-client --git-user-id OpenParkProject --git-repo-id OPP-common
       - name: Generate API server
-        run: docker-entrypoint.sh generate -i openapi.yaml -g go-gin-server -o go-gin-server
+        run: docker-entrypoint.sh generate -i openapi.yaml -g go-gin-server -o go-gin-server --git-user-id OpenParkProject --git-repo-id OPP-common
+
+      - name: push
+        run: |
+          apt-get update
+          apt-get install -y git
+
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions Bot"
+          git add .
+          git commit -m "Update generated API clients and server" || exit 0
+          git push origin HEAD:generated-api -f
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
