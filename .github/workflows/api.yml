@@ -50,9 +50,6 @@ jobs:
 
       - name: push
         run: |
-          apt-get update
-          apt-get install -y git
-
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions Bot"
           git add .
