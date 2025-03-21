@@ -28,6 +28,26 @@ jobs:
       - name: Generate API server
         run: docker-entrypoint.sh generate -i openapi.yaml -g go-gin-server -o go-gin-server --git-user-id OpenParkProject --git-repo-id OPP-common
 
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-generated
+          path: |
+            dart-dio-client
+            go-gin-server
+          if-no-files-found: error
+
+  push-generated:
+    runs-on: ubuntu-latest
+    needs: generate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+            name: api-generated
+
       - name: push
         run: |
           apt-get update
@@ -40,15 +60,6 @@ jobs:
           git push origin HEAD:generated-api -f
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-generated
-          path: |
-            dart-dio-client
-            go-gin-server
-          if-no-files-found: error
 
   release:
       runs-on: ubuntu-latest
