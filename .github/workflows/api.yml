@@ -53,7 +53,9 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions Bot"
-          git add dart-dio-client
+          mv dart-dio-client/* .
+          rm -rf dart-dio-client
+          git add .
           git commit -m "Update generated dart-dio-client" || exit 0
           git push origin HEAD:dart-dio-client -f
         env:
