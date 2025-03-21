@@ -53,8 +53,9 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions Bot"
-          mv dart-dio-client/* .
-          rm -rf dart-dio-client
+          mv api-generated/dart-dio-client/* ./.
+          rm -rf api-generated
+          git checkout -b dart-dio-client
           git add .
           git commit -m "Update generated dart-dio-client" || exit 0
           git push origin HEAD:dart-dio-client -f
@@ -74,6 +75,7 @@ jobs:
         
         - name: Compress artifacts
           run: |
+            mv api-generated/dart-dio-client dart-dio-client
             tar -czf dart-dio-client.tar.gz dart-dio-client
         
         - name: Create GitHub Release
