@@ -61,11 +61,13 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions Bot"
-          mv dart-dio-client/* .
+          git checkout --orphan dart-dio-client
+          git rm -rf . || true
+          cp -r dart-dio-client/* .
           rm -rf dart-dio-client
           git add .
           git commit -m "Update generated dart-dio-client" || exit 0
-          git push origin HEAD:dart-dio-client -f
+          git push origin dart-dio-client -f          
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -73,11 +75,13 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions Bot"
-          mv python-client/* .
+          git checkout --orphan python-client
+          git rm -rf . || true
+          cp -r python-client/* .
           rm -rf python-client
           git add .
           git commit -m "Update generated python-client" || exit 0
-          git push origin HEAD:python-client -f
+          git push origin python-client -f   
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
