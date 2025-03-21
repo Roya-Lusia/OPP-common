@@ -28,7 +28,7 @@ jobs:
           docker-entrypoint.sh generate -i openapi.yaml -g dart-dio \
           -o dart-dio-client --git-user-id OpenParkProject \
           --git-repo-id OPP-common \
-          --additional-properties=pubName=opp_api_client
+          --additional-properties=pubName=opp_api_client,serializationLibrary=json_serializable
       
       - name: Generate Python API client
         run: |
