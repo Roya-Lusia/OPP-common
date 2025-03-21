@@ -7,13 +7,8 @@ on:
 jobs:
   prerequisites:
     runs-on: ubuntu-latest
-    container:
-      image: openapitools/openapi-generator-cli
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Install unzip
-        run: apt-get update && apt-get install -y unzip
 
   validate:
     needs: prerequisites
@@ -29,50 +24,49 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     needs: validate
-    container:
-      image: openapitools/openapi-generator-cli
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Generate Dart API clients
-        run: |
-          docker-entrypoint.sh generate -i openapi.yaml -g dart-dio \
-          -o dart-dio-client --git-user-id OpenParkProject \
-          --git-repo-id OPP-common \
-          --additional-properties=pubName=opp_api_client
 
-      - name: Run Dart build_runner to generate *.g.dart files
+      - name: Generate Dart API clients (docker)
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/local openapitools/openapi-generator-cli generate \
+            -i /local/openapi.yaml -g dart-dio \
+            -o /local/dart-dio-client --git-user-id OpenParkProject \
+            --git-repo-id OPP-common \
+            --additional-properties=pubName=opp_api_client
+
+      - name: Setup Dart
         uses: dart-lang/setup-dart@v1
         with:
-          sdk: "stable"
+          sdk: stable
 
       - name: Install dependencies & run build_runner
         working-directory: dart-dio-client
         run: |
+          sudo apt-get update && sudo apt-get install -y unzip
           dart pub get
           dart run build_runner build --delete-conflicting-outputs
-      
-      - name: Generate Python API client
+
+      - name: Generate Python API client (docker)
         run: |
-          docker-entrypoint.sh generate -i openapi.yaml -g python \
-          -o python-client --git-user-id OpenParkProject \
-          --git-repo-id OPP-common \
-          --additional-properties=pubName=opp_api_client
+          docker run --rm -v ${{ github.workspace }}:/local openapitools/openapi-generator-cli generate \
+            -i /local/openapi.yaml -g python \
+            -o /local/python-client --git-user-id OpenParkProject \
+            --git-repo-id OPP-common \
+            --additional-properties=pubName=opp_api_client
 
       - name: Upload Dart artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dart-dio-client
-          path: |
-            dart-dio-client
+          path: dart-dio-client
           if-no-files-found: error
 
       - name: Upload Python artifacts
         uses: actions/upload-artifact@v4
         with:
           name: python-client
-          path: |
-            python-client
+          path: python-client
           if-no-files-found: error
 
   push-generated-dart:
